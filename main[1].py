@@ -58,6 +58,7 @@ st.markdown("### 📉 Average Risk Score by Sector (Filtered)")
 st.bar_chart(avg_risk)
 
 # Trigger rebuild
-Trigger rebuild to install openpyxl
+# Trigger rebuild to install openpyxl
+
 
 
