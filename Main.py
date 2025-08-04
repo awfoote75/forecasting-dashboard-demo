@@ -8,6 +8,7 @@ def load_data():
     df["Date"] = pd.to_datetime(df["Date"])
     return df
 
+
 # Load and preview the data
 df = load_data()
 
