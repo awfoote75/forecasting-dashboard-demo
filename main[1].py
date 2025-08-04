@@ -5,7 +5,12 @@ import datetime
 # Load the forecasting data
 @st.cache_data
 def load_data():
-    return pd.read_excel("Forecasting_Dashboard_Data.xlsx")
+    try:
+        return pd.read_excel("Forecasting_Dashboard_Data.xlsx")
+    except FileNotFoundError as e:
+        st.error("Excel file not found: Ensure the file is uploaded correctly.")
+        return pd.DataFrame()  # Return an empty dataframe to avoid crashing the app
+
 
 df = load_data()
 df['Date'] = pd.to_datetime(df['Date'])
