@@ -4,9 +4,18 @@ import pandas as pd
 # Load data and cache it
 @st.cache_data
 def load_data():
-    df = pd.read_excel("Forecasting_Dashboard_Data.xlsx")
-    df["Date"] = pd.to_datetime(df["Date"])
-    return df
+    import os
+    st.write("📁 Files in working directory:", os.listdir("."))
+
+    try:
+        df = pd.read_excel("Forecasting_Dashboard_Data.xlsx")
+        df["Date"] = pd.to_datetime(df["Date"])
+        st.success("✅ Excel file loaded successfully!")
+        return df
+    except Exception as e:
+        st.error(f"❌ Failed to load Excel file: {e}")
+        return pd.DataFrame()
+
 
 # Load the data
 df = load_data()
