@@ -1,90 +1,54 @@
-
 import streamlit as st
+import pandas as pd
 import datetime
 
-# --- Timeline slider range
-start_date = datetime.date(2025, 8, 1)
-end_date = datetime.date(2026, 1, 1)
+# Load the forecasting data
+@st.cache_data
+def load_data():
+    return pd.read_excel("Forecasting_Dashboard_Data.xlsx")
 
-# --- Key markers
-election_date = datetime.date(2025, 11, 4)
-taiwan_drill = datetime.date(2025, 10, 22)
-shipping_alert = datetime.date(2025, 9, 15)
+df = load_data()
+df['Date'] = pd.to_datetime(df['Date'])
 
-# --- Simulated timeline slider
+# Timeline slider
+start_date = df['Date'].min().date()
+end_date = df['Date'].max().date()
 selected_date = st.slider(
-    "📅 Select a date to view scenario context:",
+    "📅 Select a date to view forecast data:",
     min_value=start_date,
     max_value=end_date,
     value=start_date,
     format="MMM DD, YYYY"
 )
 
-# --- Dynamic Side Panel Output
-st.sidebar.markdown("## 📊 Scenario Snapshot")
+# Filter by date
+filtered_df = df[df['Date'].dt.date == selected_date]
 
-if selected_date == taiwan_drill:
-    st.sidebar.markdown(f"**📅 Date:** {selected_date.strftime('%b %d, %Y')}")
-    st.sidebar.markdown("**🎯 Scenario:** Taiwan Leadership Transition")
-    st.sidebar.markdown("**🔁 Triggered By:** PLA naval drills + U.S. visit")
+# Dropdowns for sector and company
+sectors = filtered_df['Sector'].unique()
+selected_sectors = st.multiselect("📂 Filter by sector:", sectors, default=list(sectors))
 
-    st.sidebar.markdown("### 🔍 Sector Risk Profile")
-    st.sidebar.markdown("- Semiconductors: 🔴 High (TSMC flagged)")
-    st.sidebar.markdown("- Defense: 🟠 Elevated (Raytheon contracts)")
-    st.sidebar.markdown("- Shipping: 🟡 Moderate (Kaohsiung reroutes)")
+filtered_df = filtered_df[filtered_df['Sector'].isin(selected_sectors)]
 
-    st.sidebar.markdown("### 🏢 Watchlist Companies")
-    st.sidebar.markdown("- TSMC (Sharp drop in forecasted output)")
-    st.sidebar.markdown("- Evergreen Marine (Alert: rerouting costs)")
-    st.sidebar.markdown("- Lockheed Martin (Boost in procurement)")
+companies = filtered_df['Company'].unique()
+selected_companies = st.multiselect("🏢 Filter by company:", companies, default=list(companies))
 
-    st.sidebar.markdown("### ⚠️ Alerts")
-    st.sidebar.markdown("- 📈 Volatility spike detected (Semiconductors)")
-    st.sidebar.markdown("- 🗳️ Election < 30 days – Scenario shift zone")
-    st.sidebar.markdown("- 🛑 Market threshold breached (Shipping index)")
+filtered_df = filtered_df[filtered_df['Company'].isin(selected_companies)]
 
-elif selected_date == election_date:
-    st.sidebar.markdown(f"**📅 Date:** {selected_date.strftime('%b %d, %Y')}")
-    st.sidebar.markdown("**🎯 Scenario:** U.S. Presidential Election")
-    st.sidebar.markdown("**🔁 Triggered By:** Domestic policy shift expectations")
+# Highlight high-risk rows
+def highlight_risk(val):
+    return 'background-color: #ffcccc' if val > 0.7 else ''
 
-    st.sidebar.markdown("### 🔍 Sector Risk Profile")
-    st.sidebar.markdown("- AI: 🔴 High uncertainty")
-    st.sidebar.markdown("- Defense: 🟠 Budget signals diverging")
-    st.sidebar.markdown("- Construction: 🟡 Stimulus-dependent")
+# Display filtered table
+st.markdown("### 📊 Forecast Snapshot (Filtered)")
+st.dataframe(
+    filtered_df.sort_values(by='RiskScore', ascending=False)
+               .style.applymap(highlight_risk, subset=['RiskScore']),
+    use_container_width=True
+)
 
-    st.sidebar.markdown("### 🏢 Watchlist Companies")
-    st.sidebar.markdown("- Palantir (Model drift warning)")
-    st.sidebar.markdown("- Caterpillar (Forecast sensitive to policy)")
-
-    st.sidebar.markdown("### ⚠️ Alerts")
-    st.sidebar.markdown("- 🚨 Model instability: AI sector")
-    st.sidebar.markdown("- 🗳️ Realignment of probabilities underway")
-
-elif selected_date == shipping_alert:
-    st.sidebar.markdown(f"**📅 Date:** {selected_date.strftime('%b %d, %Y')}")
-    st.sidebar.markdown("**🎯 Scenario:** South China Sea Disruption")
-    st.sidebar.markdown("**🔁 Triggered By:** Naval blockade threats")
-
-    st.sidebar.markdown("### 🔍 Sector Risk Profile")
-    st.sidebar.markdown("- Shipping: 🔴 Major reroutes")
-    st.sidebar.markdown("- Oil: 🟠 Pricing shock observed")
-
-    st.sidebar.markdown("### 🏢 Watchlist Companies")
-    st.sidebar.markdown("- Evergreen Marine (Port congestion)")
-    st.sidebar.markdown("- COSCO (Flagged for exposure risk)")
-
-    st.sidebar.markdown("### ⚠️ Alerts")
-    st.sidebar.markdown("- ⛔ Supply Chain Alert Active")
-    st.sidebar.markdown("- 📉 Oil index dip warning")
-
-else:
-    st.sidebar.markdown(f"**📅 Date:** {selected_date.strftime('%b %d, %Y')}")
-    st.sidebar.markdown("No major scenario detected.")
-    st.sidebar.markdown("Monitor upcoming geopolitical or market triggers.")
-
-# --- Timeline Visual Placeholder
-st.markdown("### 🧭 Timeline Event Markers")
-st.markdown("- ⚠️ **Sep 15, 2025**: South China Sea Tension (Shipping Alert)")
-st.markdown("- 🛥️ **Oct 22, 2025**: Taiwan Leadership Drill")
-st.markdown("- 🗳️ **Nov 4, 2025**: U.S. Election")
+# Sector risk bar chart
+avg_risk = filtered_df.groupby('Sector')['RiskScore'].mean().sort_values(ascending=False)
+st.markdown("### 📉 Average Risk Score by Sector (Filtered)")
+st.bar_chart(avg_risk)
+Add filters and risk highlighting
