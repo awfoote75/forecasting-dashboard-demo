@@ -1,20 +1,25 @@
 import streamlit as st
 import pandas as pd
+import os
 
-# Load data and cache it
-@st.cache_data
-def load_data():
-    import os
-    st.write("📁 Files in working directory:", os.listdir("."))
+st.title("🔍 File Access Debug")
 
+# List files
+files = os.listdir(".")
+st.write("📁 Files in working directory:", files)
+
+# Try loading Excel file
+filename = "Forecasting_Dashboard_Data.xlsx"
+if filename in files:
     try:
-        df = pd.read_excel("Forecasting_Dashboard_Data.xlsx")
-        df["Date"] = pd.to_datetime(df["Date"])
-        st.success("✅ Excel file loaded successfully!")
-        return df
+        df = pd.read_excel(filename)
+        st.success(f"✅ Loaded {len(df)} rows")
+        st.write(df.head())
     except Exception as e:
-        st.error(f"❌ Failed to load Excel file: {e}")
-        return pd.DataFrame()
+        st.error(f"❌ Failed to read Excel file: {e}")
+else:
+    st.error("❌ Excel file not found in working directory.")
+
 
 
 # Load the data
