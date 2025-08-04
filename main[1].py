@@ -51,4 +51,4 @@ st.dataframe(
 avg_risk = filtered_df.groupby('Sector')['RiskScore'].mean().sort_values(ascending=False)
 st.markdown("### 📉 Average Risk Score by Sector (Filtered)")
 st.bar_chart(avg_risk)
-Add filters and risk highlighting
+
