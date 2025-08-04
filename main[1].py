@@ -57,3 +57,7 @@ avg_risk = filtered_df.groupby('Sector')['RiskScore'].mean().sort_values(ascendi
 st.markdown("### 📉 Average Risk Score by Sector (Filtered)")
 st.bar_chart(avg_risk)
 
+# Trigger rebuild
+Trigger rebuild to install openpyxl
+
+
