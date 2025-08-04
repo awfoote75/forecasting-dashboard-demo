@@ -11,9 +11,10 @@ def load_data():
         st.error("Excel file not found: Ensure the file is uploaded correctly.")
         return pd.DataFrame()  # Return an empty dataframe to avoid crashing the app
 
-
+# This filters everything else out
 df = load_data()
-df['Date'] = pd.to_datetime(df['Date'])
+df = df[df["Date"] == selected_date]  
+
 
 # Timeline slider
 start_date = df['Date'].min().date()
