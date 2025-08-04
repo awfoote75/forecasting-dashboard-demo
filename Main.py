@@ -51,3 +51,6 @@ if not sector_risk.empty:
     st.pyplot(fig)
 else:
     st.write("No sector data available to plot.")
+
+# Force rebuild
+
