@@ -10,6 +10,8 @@ def load_data():
 
 # Load the data
 df = load_data()
+st.write("Loaded rows:", len(df))
+st.write("Date range:", df['Date'].min(), "to", df['Date'].max())
 
 st.title("📊 Forecasting Dashboard Demo")
 st.markdown("Use the slider and filters to explore company and sector-level risk over time.")
