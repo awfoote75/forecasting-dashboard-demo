@@ -36,3 +36,26 @@ df["DateOnly"] = df["Date"].dt.date
 
 # Filter by selected date
 filtered
+
+import streamlit as st
+import pandas as pd
+import os
+
+st.title("🔍 File Access Debug")
+
+# List files
+files = os.listdir(".")
+st.write("Files in directory:", files)
+
+# Try loading file
+filename = "Forecasting_Dashboard_Data.xlsx"
+if filename in files:
+    try:
+        df = pd.read_excel(filename)
+        st.success(f"✅ Loaded {len(df)} rows")
+        st.write(df.head())
+    except Exception as e:
+        st.error(f"❌ Failed to load Excel file: {e}")
+else:
+    st.error("❌ Excel file not found.")
+
